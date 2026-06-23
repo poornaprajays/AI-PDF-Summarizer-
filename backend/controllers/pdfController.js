@@ -10,11 +10,11 @@ const uploadAndSummarize = async (req, res) => {
       return res.status(400).json({ message: 'No PDF file uploaded.' });
     }
 
-    const filePath = req.file.path;
     const fileName = req.file.originalname;
 
-    const dataBuffer = fs.readFileSync(filePath);
-    const pdfData = await pdfParse(dataBuffer);
+    // req.file.buffer is provided by multer memoryStorage (works in cloud)
+    // No filesystem reads needed — the buffer is the file
+    const pdfData = await pdfParse(req.file.buffer);
     const extractedText = pdfData.text;
 
     if (!extractedText || extractedText.trim().length === 0) {
@@ -30,7 +30,7 @@ const uploadAndSummarize = async (req, res) => {
       [req.user.id, fileName, extractedText, JSON.stringify(aiResult)]
     );
 
-    fs.unlinkSync(filePath);
+    // No fs.unlinkSync needed — memory storage has no temp file to delete
 
     const userResult = await pool.query('SELECT email, name FROM users WHERE id = $1', [req.user.id]);
     const user = userResult.rows[0];

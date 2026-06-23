@@ -3,6 +3,10 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // SSL is required for cloud PostgreSQL providers (Railway, Render, Neon, etc.)
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 pool.connect((err) => {

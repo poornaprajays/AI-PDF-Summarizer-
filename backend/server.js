@@ -12,42 +12,46 @@ const pdfRoutes = require('./routes/pdfRoutes');
 const summaryRoutes = require('./routes/summaryRoutes');
 
 const app = express();
-const path = require('path');
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+// CORS — allow Netlify frontend in production, localhost in dev
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.CLIENT_URL, // e.g. https://yourapp.netlify.app
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/summary', summaryRoutes);
 
-// Netlify Functions support
-app.use('/.netlify/functions/api/auth', authRoutes);
-app.use('/.netlify/functions/api/pdf', pdfRoutes);
-app.use('/.netlify/functions/api/summary', summaryRoutes);
-
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running' });
+  res.json({ status: 'OK', env: process.env.NODE_ENV || 'development' });
 });
 
-app.get('/.netlify/functions/api/health', (req, res) => {
-  res.json({ status: 'Server is running as serverless function' });
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'AI PDF Summarizer API is running.' });
 });
 
-// Serve static assets from the frontend build folder
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// Route all non-API requests to the React frontend index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// Start server (not used in serverless/Netlify Functions context)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
-
-if (!process.env.NETLIFY) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
 
 module.exports = app;

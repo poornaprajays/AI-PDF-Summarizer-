@@ -1,14 +1,9 @@
 [build]
-  command = "npm run build"
-  publish = "frontend/dist"
-  functions = "netlify/functions"
+  command   = "npm run build"
+  publish   = "frontend/dist"
 
+# SPA fallback — all routes serve index.html so React Router works
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from   = "/*"
+  to     = "/index.html"
   status = 200
