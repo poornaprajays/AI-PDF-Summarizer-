@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
-import { FileText, Loader } from 'lucide-react'
+import { Loader } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -28,42 +28,133 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      padding: 24,
+      background: '#F0F0F0',
+      backgroundImage: 'radial-gradient(rgba(18, 18, 18, 0.07) 1.5px, transparent 1.5px)',
+      backgroundSize: '24px 24px'
+    }}>
       <div style={{ width: '100%', maxWidth: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FileText size={16} color="var(--bg)" />
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          {/* Logo */}
+          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#D02020', border: '2px solid #121212' }} />
+              <div style={{ width: 14, height: 14, background: '#1040C0', border: '2px solid #121212' }} />
+              <div style={{ 
+                width: 0, height: 0, 
+                borderLeft: '7px solid transparent', 
+                borderRight: '7px solid transparent', 
+                borderBottom: '14px solid #F0C020',
+                position: 'relative'
+              }}>
+                <div style={{
+                  position: 'absolute', top: 1, left: -7,
+                  width: 0, height: 0,
+                  borderLeft: '7px solid transparent',
+                  borderRight: '7px solid transparent',
+                  borderBottom: '14px solid #121212',
+                  zIndex: -1
+                }} />
+              </div>
             </div>
-            <span style={{ fontWeight: 600, fontSize: 16 }}>Summarize</span>
+            <span style={{ fontWeight: 900, fontSize: 18, letterSpacing: '-0.8px', textTransform: 'uppercase', color: '#121212' }}>Summarize</span>
           </Link>
-          <h1 style={{ fontSize: 24, fontWeight: 500, letterSpacing: '-0.5px', marginBottom: 8 }}>Welcome back</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Sign in to your account</p>
+
+          <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-1.5px', marginBottom: 8, color: '#121212', textTransform: 'uppercase' }}>
+            SIGN IN
+          </h1>
+          <p style={{ color: '#7A7A7A', fontSize: 11, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            ACCESS THE SUMMARIZE SYSTEM
+          </p>
         </div>
 
-        <div className="card">
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="card" style={{ 
+          borderLeft: '16px solid #D02020',
+          background: '#FFFFFF',
+          padding: '32px 28px',
+          boxShadow: '8px 8px 0px 0px #121212'
+        }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 6, color: 'var(--text-secondary)' }}>Email</label>
-              <input className="input" type="email" name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 900, marginBottom: 8, color: '#121212', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                EMAIL ADDRESS
+              </label>
+              <input 
+                className="input" 
+                type="email" 
+                name="email" 
+                placeholder="YOU@EXAMPLE.COM" 
+                value={form.email} 
+                onChange={handleChange} 
+                required 
+                style={{ borderRadius: 0, border: '4px solid #121212', textTransform: 'uppercase', fontWeight: 700 }}
+              />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 6, color: 'var(--text-secondary)' }}>Password</label>
-              <input className="input" type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} required />
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 900, marginBottom: 8, color: '#121212', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                PASSWORD
+              </label>
+              <input 
+                className="input" 
+                type="password" 
+                name="password" 
+                placeholder="••••••••" 
+                value={form.password} 
+                onChange={handleChange} 
+                required 
+                style={{ borderRadius: 0, border: '4px solid #121212', fontWeight: 700 }}
+              />
             </div>
+
             {error && (
-              <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--danger)' }}>
-                {error}
+              <div style={{ 
+                background: 'rgba(208,32,32,0.08)', 
+                border: '4px solid #D02020', 
+                padding: '12px 16px', 
+                fontSize: 13, 
+                color: '#D02020',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.02em'
+              }}>
+                ERROR: {error}
               </div>
             )}
-            <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', padding: '12px', marginTop: 4 }}>
-              {loading ? <><Loader size={15} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</> : 'Sign in'}
+
+            <button 
+              className="btn btn-primary" 
+              type="submit" 
+              disabled={loading} 
+              style={{ 
+                width: '100%', 
+                justifyContent: 'center', 
+                padding: '16px', 
+                marginTop: 8,
+                borderRadius: 0
+              }}
+            >
+              {loading ? (
+                <>
+                  <Loader size={16} style={{ animation: 'spin 1s linear infinite', marginRight: 8 }} />
+                  AUTHENTICATING...
+                </>
+              ) : (
+                'ENTER SYSTEM'
+              )}
             </button>
           </form>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text-secondary)' }}>
-          No account? <Link to="/register" style={{ color: 'var(--accent)' }}>Create one</Link>
+        <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, fontWeight: 700, color: '#4E4E4E', textTransform: 'uppercase' }}>
+          NO ACCOUNT?{' '}
+          <Link to="/register" style={{ color: '#D02020', textDecoration: 'underline', textDecorationThickness: '2px' }}>
+            CREATE ONE HERE
+          </Link>
         </p>
       </div>
 
@@ -71,3 +162,4 @@ export default function Login() {
     </div>
   )
 }
+
