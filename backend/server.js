@@ -18,13 +18,17 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.CLIENT_URL, // e.g. https://yourapp.netlify.app
-].filter(Boolean);
+].filter(Boolean).map(url => url.replace(/\/$/, ''));
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, Postman, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const cleanOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(cleanOrigin)) {
+      return callback(null, true);
+    }
+    console.error(`CORS Blocked: Origin "${origin}" is not in allowed list:`, allowedOrigins);
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
