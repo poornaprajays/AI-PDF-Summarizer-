@@ -202,7 +202,7 @@ function QABox({ summaryId }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="qa-row" style={{ display: 'flex', gap: 8 }}>
         <input 
           className="input" 
           placeholder="ASK A QUESTION ABOUT THIS PDF..." 
@@ -450,10 +450,10 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F0F0' }}>
       <Navbar />
-      <div className="page-wrapper" style={{ padding: '48px 48px', flexGrow: 1 }}>
+      <div className="dash-wrapper" style={{ padding: '48px 48px', flexGrow: 1 }}>
         
         {/* Welcome Block */}
-        <div style={{ 
+        <div className="dash-welcome" style={{ 
           background: '#FFFFFF', 
           border: '4px solid #121212', 
           padding: '24px 32px', 

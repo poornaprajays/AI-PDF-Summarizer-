@@ -46,7 +46,7 @@ export default function Home() {
         background: '#FFFFFF'
       }}>
         {/* Left Hero Panel */}
-        <div style={{ 
+        <div className="hero-panel-left" style={{ 
           padding: '80px 48px', 
           display: 'flex', 
           flexDirection: 'column', 
@@ -109,7 +109,7 @@ export default function Home() {
         </div>
 
         {/* Right Hero Panel: Interactive Bauhaus Geometric Composition */}
-        <div style={{ 
+        <div className="hero-panel-right" style={{ 
           background: '#1040C0', 
           position: 'relative', 
           overflow: 'hidden', 
@@ -227,7 +227,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section style={{ padding: '80px 48px', flexGrow: 1 }}>
+      <section className="features-section" style={{ padding: '80px 48px', flexGrow: 1 }}>
         <div style={{ 
           borderBottom: '4px solid #121212', 
           paddingBottom: 24, 
@@ -332,7 +332,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section style={{ padding: '0 48px 80px' }}>
+      <section className="cta-section" style={{ padding: '0 48px 80px' }}>
         <div style={{
           background: '#D02020', 
           border: '4px solid #121212',
@@ -386,7 +386,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{ 
+      <footer className="home-footer" style={{ 
         borderTop: '4px solid #121212', 
         padding: '32px 48px', 
         display: 'flex',
