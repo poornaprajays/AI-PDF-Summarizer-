@@ -61,7 +61,7 @@ ai-pdf-summarizer/
 
 - 📄 **PDF Upload & Text Extraction** — Upload PDF files; text extracted server-side via `pdf-parse`
 - 🤖 **AI Summarization** — Google Gemini API generates concise summaries
-- 🔐 **JWT Authentication** — Register, login, token-based session management
+-  **JWT Authentication** — Register, login, token-based session management
 -  **Role-Based Access** — User & Admin roles with protected routes
 -  **Email Notifications** — Nodemailer sends summary-ready emails
 -  **PostgreSQL Storage** — Summaries stored with rating & feedback support
