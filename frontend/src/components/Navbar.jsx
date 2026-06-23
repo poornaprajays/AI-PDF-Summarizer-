@@ -18,13 +18,13 @@ export default function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
-      background: 'rgba(10,10,15,0.85)',
+      background: 'rgba(0,0,0,0.85)',
       backdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--border)',
       padding: '0 24px',
     }}>
       <div style={{
-        maxWidth: 1100, margin: '0 auto',
+        width: '100%', maxWidth: '100%', margin: '0 auto',
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', height: 60,
       }}>
@@ -34,7 +34,7 @@ export default function Navbar() {
             background: 'var(--accent)', display: 'flex',
             alignItems: 'center', justifyContent: 'center'
           }}>
-            <Sparkles size={16} color="#fff" />
+            <FileText size={16} color="var(--bg)" />
           </div>
           <span style={{ fontWeight: 600, fontSize: 15, letterSpacing: '-0.3px' }}>Summarize</span>
         </Link>

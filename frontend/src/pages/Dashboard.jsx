@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import { pdfAPI, summaryAPI } from '../services/api'
-import { Upload, FileText, Loader, Star, Send, ChevronDown, ChevronUp, Sparkles, Bookmark } from 'lucide-react'
+import { Upload, FileText, Loader, Star, Send, ChevronDown, ChevronUp, Bookmark } from 'lucide-react'
 
 function UploadZone({ onSuccess }) {
   const [dragging, setDragging] = useState(false)
@@ -56,13 +56,13 @@ function UploadZone({ onSuccess }) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
             <Loader size={32} color="var(--accent)" style={{ animation: 'spin 1s linear infinite' }} />
             <div>
-              <div style={{ fontWeight: 500, marginBottom: 4 }}>Summarizing your PDF...</div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Gemini is reading your document</div>
+              <div style={{ fontWeight: 500, marginBottom: 4 }}>Summarizing PDF...</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Analyzing document structure...</div>
             </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(124,110,247,0.2)' }}>
+            <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
               <Upload size={24} color="var(--accent)" />
             </div>
             <div>
@@ -355,7 +355,7 @@ export default function Dashboard() {
       <div className="page-wrapper" style={{ padding: '48px 24px' }}>
         <div style={{ marginBottom: 40 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <Sparkles size={18} color="var(--accent)" />
+            <FileText size={18} color="var(--accent)" />
             <h1 style={{ fontSize: 22, fontWeight: 500, letterSpacing: '-0.4px' }}>
               Good to see you, {user.name?.split(' ')[0]}
             </h1>

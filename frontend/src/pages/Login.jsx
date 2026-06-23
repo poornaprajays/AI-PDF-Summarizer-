@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
-import { Sparkles, Loader } from 'lucide-react'
+import { FileText, Loader } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -33,7 +33,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Sparkles size={16} color="#fff" />
+              <FileText size={16} color="var(--bg)" />
             </div>
             <span style={{ fontWeight: 600, fontSize: 16 }}>Summarize</span>
           </Link>

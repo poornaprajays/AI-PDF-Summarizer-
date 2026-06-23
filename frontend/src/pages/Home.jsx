@@ -3,10 +3,10 @@ import Navbar from '../components/Navbar'
 import { Sparkles, FileText, Zap, MessageSquare, Star, ArrowRight, Shield } from 'lucide-react'
 
 const features = [
-  { icon: Zap, title: 'Instant summaries', desc: 'Gemini 1.5 Flash processes your PDF in seconds and returns a clean, readable summary.' },
+  { icon: Zap, title: 'Instant summaries', desc: 'Process your PDF in seconds and get a clean, high-fidelity summary.' },
   { icon: MessageSquare, title: 'Ask anything', desc: 'Chat with your document. Ask follow-up questions and get answers grounded in your PDF.' },
   { icon: Star, title: 'Key points', desc: 'Five bullet-point takeaways extracted automatically so you never miss what matters.' },
-  { icon: Shield, title: 'Private & secure', desc: 'Your files are deleted from our servers immediately after summarization. Never stored.' },
+  { icon: Shield, title: 'Private & secure', desc: 'Your files are deleted immediately after summarization. Never stored.' },
 ]
 
 export default function Home() {
@@ -19,13 +19,10 @@ export default function Home() {
         <div style={{
           position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
           width: 600, height: 300,
-          background: 'radial-gradient(ellipse, rgba(124,110,247,0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
         <div style={{ position: 'relative', maxWidth: 700, margin: '0 auto' }}>
-          <div className="tag" style={{ marginBottom: 24 }}>
-            <Sparkles size={12} /> Powered by Gemini 1.5 Flash
-          </div>
           <h1 className="serif" style={{
             fontSize: 'clamp(40px, 6vw, 68px)',
             fontWeight: 400,
@@ -33,6 +30,7 @@ export default function Home() {
             letterSpacing: '-1.5px',
             marginBottom: 24,
             color: 'var(--text-primary)',
+            marginTop: 24,
           }}>
             Read less.<br />
             <span style={{ color: 'var(--accent)' }}>Understand more.</span>
@@ -86,7 +84,7 @@ export default function Home() {
                 width: 38, height: 38, borderRadius: 10,
                 background: 'var(--accent-soft)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '1px solid rgba(124,110,247,0.2)',
+                border: '1px solid var(--border)',
               }}>
                 <Icon size={18} color="var(--accent)" />
               </div>
@@ -123,7 +121,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border)', padding: '24px', textAlign: 'center' }}>
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-          © 2025 Summarize · Built with Gemini AI
+          © 2026 Summarize
         </span>
       </footer>
     </div>
