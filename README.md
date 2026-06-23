@@ -65,7 +65,7 @@ ai-pdf-summarizer/
 - 👤 **Role-Based Access** — User & Admin roles with protected routes
 - 📧 **Email Notifications** — Nodemailer sends summary-ready emails
 - 🗃️ **PostgreSQL Storage** — Summaries stored with rating & feedback support
-- 📊 **Admin Panel** — Manage users and view all summaries
+-  **Admin Panel** — Manage users and view all summaries
 
 ---
 
