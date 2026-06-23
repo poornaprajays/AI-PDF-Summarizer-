@@ -33,7 +33,8 @@ yarn-error.log*
 # ===========================
 # Uploaded Files (runtime)
 # ===========================
-uploads/
+# Ignore actual uploaded PDFs but keep the uploads/ directory tracked
+backend/uploads/*.pdf
 *.pdf
 
 # ===========================
