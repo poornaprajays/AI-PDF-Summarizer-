@@ -22,8 +22,17 @@ app.use('/api/auth', authRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/summary', summaryRoutes);
 
+// Netlify Functions support
+app.use('/.netlify/functions/api/auth', authRoutes);
+app.use('/.netlify/functions/api/pdf', pdfRoutes);
+app.use('/.netlify/functions/api/summary', summaryRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
+});
+
+app.get('/.netlify/functions/api/health', (req, res) => {
+  res.json({ status: 'Server is running as serverless function' });
 });
 
 // Serve static assets from the frontend build folder
@@ -34,7 +43,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (!process.env.NETLIFY) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
