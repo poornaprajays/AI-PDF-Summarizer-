@@ -32,9 +32,10 @@ const uploadAndSummarize = async (req, res) => {
 
     // No fs.unlinkSync needed — memory storage has no temp file to delete
 
-    const userResult = await pool.query('SELECT email, name FROM users WHERE id = $1', [req.user.id]);
-    const user = userResult.rows[0];
-    await sendSummaryEmail(user.email, user.name, fileName);
+    // Send email notification — non-blocking, won't fail the upload if email isn't configured
+    pool.query('SELECT email, name FROM users WHERE id = $1', [req.user.id])
+      .then(userResult => sendSummaryEmail(userResult.rows[0].email, userResult.rows[0].name, fileName))
+      .catch(emailErr => console.warn('Email notification skipped:', emailErr.message));
 
     res.status(200).json({
       message: 'PDF summarized successfully.',
