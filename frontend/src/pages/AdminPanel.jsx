@@ -246,7 +246,6 @@ export default function AdminPanel() {
                         gap: 4, 
                         fontSize: 11, 
                         fontWeight: 900, 
-                        color: '#121212', 
                         background: '#D02020', 
                         color: '#FFFFFF',
                         border: '2px solid #121212', 
