@@ -1,6 +1,11 @@
+// AI PDF Summarizer Backend
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+
+// Initialize database tables
+require('./models/User');
+require('./models/Summary');
 
 const authRoutes = require('./routes/authRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
