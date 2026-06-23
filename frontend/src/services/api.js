@@ -41,6 +41,7 @@ export const summaryAPI = {
   ask: (id, question) => api.post(`/summary/${id}/ask`, { question }),
   getAll: () => api.get('/summary/all'),
   getAnalytics: () => api.get('/summary/analytics'),
+  toggleSave: (id) => api.patch(`/summary/${id}/save`),
 }
 
 export default api

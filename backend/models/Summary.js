@@ -10,6 +10,7 @@ const createSummaryTable = async () => {
       summary TEXT,
       rating INTEGER DEFAULT NULL,
       feedback TEXT DEFAULT NULL,
+      is_saved BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;

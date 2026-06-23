@@ -4,7 +4,7 @@ const { answerQuestion } = require('../services/geminiService');
 const getUserSummaries = async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, file_name, summary, rating, feedback, created_at
+      `SELECT id, file_name, summary, rating, feedback, is_saved, created_at
        FROM summaries
        WHERE user_id = $1
        ORDER BY created_at DESC`,
@@ -122,11 +122,30 @@ const getAnalytics = async (req, res) => {
   }
 };
 
+const toggleSaveSummary = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE summaries 
+       SET is_saved = NOT is_saved 
+       WHERE id = $1 AND user_id = $2 
+       RETURNING id, is_saved`,
+      [req.params.id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Summary not found.' });
+    }
+    res.status(200).json({ message: 'Saved status updated.', data: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not update saved status.', error: err.message });
+  }
+};
+
 module.exports = {
   getUserSummaries,
   getSummaryById,
   submitRating,
   askQuestion,
   getAllSummaries,
-  getAnalytics
+  getAnalytics,
+  toggleSaveSummary
 };

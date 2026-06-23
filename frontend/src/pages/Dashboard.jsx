@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import { pdfAPI, summaryAPI } from '../services/api'
-import { Upload, FileText, Loader, Star, Send, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
+import { Upload, FileText, Loader, Star, Send, ChevronDown, ChevronUp, Sparkles, Bookmark } from 'lucide-react'
 
 function UploadZone({ onSuccess }) {
   const [dragging, setDragging] = useState(false)
@@ -158,9 +158,22 @@ function QABox({ summaryId }) {
   )
 }
 
-function SummaryResult({ data, onRated }) {
+function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
   const [open, setOpen] = useState(true)
+  const [saving, setSaving] = useState(false)
   const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await summaryAPI.toggleSave(data.summaryId)
+      onSaveToggle()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -174,9 +187,19 @@ function SummaryResult({ data, onRated }) {
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{new Date(data.createdAt).toLocaleString()}</div>
           </div>
         </div>
-        <button className="btn btn-ghost" style={{ padding: '6px 10px' }} onClick={() => setOpen(o => !o)}>
-          {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button 
+            className="btn btn-ghost" 
+            style={{ padding: '6px 10px', color: isSaved ? 'var(--accent)' : 'var(--text-muted)' }} 
+            onClick={handleSave}
+            disabled={saving}
+          >
+            <Bookmark size={16} fill={isSaved ? 'var(--accent)' : 'transparent'} />
+          </button>
+          <button className="btn btn-ghost" style={{ padding: '6px 10px' }} onClick={() => setOpen(o => !o)}>
+            {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -231,10 +254,11 @@ function SummaryResult({ data, onRated }) {
   )
 }
 
-function PastSummaryCard({ s }) {
+function PastSummaryCard({ s, onSaveToggle }) {
   const [open, setOpen] = useState(false)
   const [full, setFull] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const load = async () => {
     if (full) { setOpen(o => !o); return }
@@ -250,6 +274,18 @@ function PastSummaryCard({ s }) {
     }
   }
 
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await summaryAPI.toggleSave(s.id)
+      onSaveToggle()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const parsed = full ? (typeof full.summary === 'string' ? JSON.parse(full.summary) : full.summary) : null
 
   return (
@@ -262,8 +298,18 @@ function PastSummaryCard({ s }) {
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(s.created_at).toLocaleDateString()}</div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {s.rating && <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--text-muted)' }}><Star size={13} fill="var(--accent)" color="var(--accent)" />{s.rating}</div>}
+          
+          <button 
+            className="btn btn-ghost" 
+            style={{ padding: '5px 8px', color: s.is_saved ? 'var(--accent)' : 'var(--text-muted)' }} 
+            onClick={handleSave}
+            disabled={saving}
+          >
+            <Bookmark size={14} fill={s.is_saved ? 'var(--accent)' : 'transparent'} />
+          </button>
+
           <button className="btn btn-ghost" style={{ padding: '5px 10px', fontSize: 13 }} onClick={load}>
             {loading ? <Loader size={13} style={{ animation: 'spin 1s linear infinite' }} /> : open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
@@ -283,16 +329,25 @@ export default function Dashboard() {
   const [latestResult, setLatestResult] = useState(null)
   const [pastSummaries, setPastSummaries] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
+  const [activeTab, setActiveTab] = useState('all')
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  useEffect(() => {
+  const fetchHistory = () => {
     summaryAPI.getMy().then(res => setPastSummaries(res.data)).catch(console.error).finally(() => setLoadingHistory(false))
+  }
+
+  useEffect(() => {
+    fetchHistory()
   }, [])
 
   const handleUploadSuccess = (data) => {
     setLatestResult(data)
-    summaryAPI.getMy().then(res => setPastSummaries(res.data)).catch(console.error)
+    fetchHistory()
   }
+
+  const isLatestSaved = latestResult ? pastSummaries.find(s => s.id === latestResult.summaryId)?.is_saved : false
+  const savedSummaries = pastSummaries.filter(s => s.is_saved)
+  const displayedSummaries = activeTab === 'all' ? pastSummaries : savedSummaries
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -312,23 +367,66 @@ export default function Dashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>New summary</div>
             <UploadZone onSuccess={handleUploadSuccess} />
-            {latestResult && <SummaryResult data={latestResult} onRated={() => {}} />}
+            {latestResult && (
+              <SummaryResult 
+                data={latestResult} 
+                isSaved={isLatestSaved} 
+                onSaveToggle={fetchHistory} 
+                onRated={fetchHistory} 
+              />
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-              Past summaries {pastSummaries.length > 0 && `· ${pastSummaries.length}`}
+            <div style={{ display: 'flex', gap: 16, borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 4 }}>
+              <button 
+                onClick={() => setActiveTab('all')} 
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  borderBottom: `2px solid ${activeTab === 'all' ? 'var(--accent)' : 'transparent'}`, 
+                  color: activeTab === 'all' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  paddingBottom: 6, 
+                  fontWeight: activeTab === 'all' ? 600 : 400,
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  transition: 'all 0.2s'
+                }}
+              >
+                All Uploads {pastSummaries.length > 0 && `(${pastSummaries.length})`}
+              </button>
+              <button 
+                onClick={() => setActiveTab('saved')} 
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  borderBottom: `2px solid ${activeTab === 'saved' ? 'var(--accent)' : 'transparent'}`, 
+                  color: activeTab === 'saved' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  paddingBottom: 6, 
+                  fontWeight: activeTab === 'saved' ? 600 : 400,
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Bookmarked {savedSummaries.length > 0 && `(${savedSummaries.length})`}
+              </button>
             </div>
+
             {loadingHistory ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                 <Loader size={20} color="var(--text-muted)" style={{ animation: 'spin 1s linear infinite' }} />
               </div>
-            ) : pastSummaries.length === 0 ? (
+            ) : displayedSummaries.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)', fontSize: 14 }}>
-                No summaries yet. Upload your first PDF!
+                {activeTab === 'all' ? 'No summaries yet. Upload your first PDF!' : 'No bookmarked summaries yet. Star some to save them here!'}
               </div>
             ) : (
-              pastSummaries.map(s => <PastSummaryCard key={s.id} s={s} />)
+              displayedSummaries.map(s => <PastSummaryCard key={s.id} s={s} onSaveToggle={fetchHistory} />)
             )}
           </div>
         </div>
