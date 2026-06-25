@@ -107,18 +107,6 @@ npm install
 npm run dev
 ```
 
-### Environment Variables (backend/.env)
-
-```env
-PORT=5000
-DATABASE_URL=postgresql://localhost:5432/aipdfdb
-JWT_SECRET=your_jwt_secret_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_gmail_app_password
-CLIENT_URL=http://localhost:5173
-```
-
 ---
 
 ## 📡 API Endpoints
@@ -134,14 +122,6 @@ CLIENT_URL=http://localhost:5173
 | Method | Endpoint        | Description            | Protected |
 |--------|-----------------|------------------------|-----------|
 | POST   | `/api/pdf/upload` | Upload PDF & summarize | Yes     |
-
-### Summary
-| Method | Endpoint                    | Description              | Protected |
-|--------|-----------------------------|--------------------------|-----------|
-| GET    | `/api/summary/all`          | Get user's summaries     | Yes       |
-| GET    | `/api/summary/:id`          | Get single summary       | Yes       |
-| POST   | `/api/summary/:id/feedback` | Submit rating & feedback | Yes       |
-| DELETE | `/api/summary/:id`          | Delete summary           | Yes       |
 
 ---
 
