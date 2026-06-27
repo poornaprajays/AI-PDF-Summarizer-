@@ -1,6 +1,6 @@
 #  AI PDF Summarizer
 
-A full-stack AI-powered PDF summarization application built with **Node.js**, **Express**, **PostgreSQL**, **Google Gemini API**, and **React (Vite)**.
+A full-stack "AI-powered PDF summarization" application built with **Node.js**, **Express**, **PostgreSQL**, **Google Gemini API**, and **React (Vite)**.
 
 ---
 
