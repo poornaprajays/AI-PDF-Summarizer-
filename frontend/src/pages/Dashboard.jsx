@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import { pdfAPI, summaryAPI } from '../services/api'
-import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark } from 'lucide-react'
+import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark, Mic, MicOff } from 'lucide-react'
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 function UploadZone({ onSuccess }) {
   const [dragging, setDragging] = useState(false)
@@ -186,8 +187,37 @@ function QABox({ summaryId }) {
   const [answer, setAnswer] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const {
+    isSupported,
+    isListening,
+    transcript,
+    interimTranscript,
+    startListening,
+    stopListening,
+    resetTranscript,
+    error: speechError,
+  } = useSpeechRecognition()
+
+  // Sync finalized transcript into the question input
+  useEffect(() => {
+    if (transcript) {
+      setQuestion(transcript)
+    }
+  }, [transcript])
+
+  const handleMicClick = () => {
+    if (isListening) {
+      stopListening()
+    } else {
+      resetTranscript()
+      setQuestion('')
+      startListening()
+    }
+  }
+
   const ask = async () => {
     if (!question.trim()) return
+    if (isListening) stopListening()
     setLoading(true)
     setAnswer('')
     try {
@@ -200,35 +230,116 @@ function QABox({ summaryId }) {
     }
   }
 
+  // The input shows the live interim transcript while speaking,
+  // and the finalized transcript once speech ends.
+  const displayValue = isListening && interimTranscript
+    ? interimTranscript
+    : question
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="qa-row" style={{ display: 'flex', gap: 8 }}>
-        <input 
-          className="input" 
-          placeholder="ASK A QUESTION ABOUT THIS PDF..." 
-          value={question} 
-          onChange={e => setQuestion(e.target.value)} 
-          onKeyDown={e => e.key === 'Enter' && ask()} 
-          style={{ borderRadius: 0, border: '4px solid #121212', fontWeight: 700, textTransform: 'uppercase' }}
+        <input
+          className="input"
+          placeholder={isListening ? 'LISTENING...' : 'ASK A QUESTION ABOUT THIS PDF...'}
+          value={displayValue}
+          onChange={e => {
+            if (!isListening) setQuestion(e.target.value)
+          }}
+          onKeyDown={e => e.key === 'Enter' && ask()}
+          style={{
+            borderRadius: 0,
+            border: isListening ? '4px solid #D02020' : '4px solid #121212',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            transition: 'border-color 0.2s ease',
+            color: isListening && interimTranscript ? '#7A7A7A' : '#121212',
+          }}
         />
-        <button 
-          className="btn btn-primary" 
-          onClick={ask} 
-          disabled={loading} 
+
+        {/* Mic Button */}
+        <button
+          type="button"
+          onClick={handleMicClick}
+          disabled={!isSupported}
+          title={
+            !isSupported
+              ? 'Speech recognition not supported in this browser. Use Chrome or Edge.'
+              : isListening
+              ? 'Stop recording'
+              : 'Click to speak your question'
+          }
+          style={{
+            width: 52,
+            height: 52,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '4px solid #121212',
+            borderRadius: 0,
+            background: isListening ? '#D02020' : !isSupported ? '#EAEAEA' : '#FFFFFF',
+            color: isListening ? '#FFFFFF' : !isSupported ? '#7A7A7A' : '#121212',
+            cursor: !isSupported ? 'not-allowed' : 'pointer',
+            boxShadow: isListening ? 'none' : '4px 4px 0px 0px #121212',
+            transform: isListening ? 'translate(2px, 2px)' : 'none',
+            transition: 'all 0.15s ease',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Pulsing ring while listening */}
+          {isListening && (
+            <span style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 0,
+              background: 'rgba(255,255,255,0.15)',
+              animation: 'micPulse 1.2s ease-in-out infinite',
+            }} />
+          )}
+          {isListening
+            ? <MicOff size={18} />
+            : <Mic size={18} />}
+        </button>
+
+        {/* Send Button */}
+        <button
+          className="btn btn-primary"
+          onClick={ask}
+          disabled={loading}
           style={{ whiteSpace: 'nowrap', padding: '12px 20px', borderRadius: 0 }}
         >
           {loading ? <Loader size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={16} />}
         </button>
       </div>
+
+      {/* Speech error banner */}
+      {speechError && (
+        <div style={{
+          background: 'rgba(208,32,32,0.08)',
+          border: '3px solid #D02020',
+          padding: '10px 14px',
+          fontSize: 12,
+          fontWeight: 700,
+          color: '#D02020',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+        }}>
+          ⚠ {speechError}
+        </div>
+      )}
+
+      {/* AI Answer */}
       {answer && (
-        <div style={{ 
-          background: '#EAEAEA', 
-          border: '4px solid #121212', 
-          borderLeft: '12px solid #1040C0', // Blue stripe for answers
-          borderRadius: 0, 
-          padding: '16px', 
-          fontSize: 14, 
-          color: '#121212', 
+        <div style={{
+          background: '#EAEAEA',
+          border: '4px solid #121212',
+          borderLeft: '12px solid #1040C0',
+          borderRadius: 0,
+          padding: '16px',
+          fontSize: 14,
+          color: '#121212',
           lineHeight: 1.6,
           fontWeight: 500
         }}>
@@ -236,6 +347,15 @@ function QABox({ summaryId }) {
           {answer}
         </div>
       )}
+
+      {/* Keyframe for mic pulse animation */}
+      <style>{`
+        @keyframes micPulse {
+          0%, 100% { opacity: 0.15; transform: scale(1); }
+          50% { opacity: 0.35; transform: scale(1.05); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   )
 }
