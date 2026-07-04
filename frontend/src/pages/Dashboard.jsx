@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import { pdfAPI, summaryAPI } from '../services/api'
-import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark, Mic, MicOff } from 'lucide-react'
+import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark, Mic, MicOff, Volume2, Square } from 'lucide-react'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 function UploadZone({ onSuccess }) {
@@ -363,7 +363,28 @@ function QABox({ summaryId }) {
 function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
   const [open, setOpen] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel()
+    }
+  }, [])
+
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel()
+      setIsSpeaking(false)
+    } else {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(parsed.summary)
+      utterance.onend = () => setIsSpeaking(false)
+      utterance.onerror = () => setIsSpeaking(false)
+      window.speechSynthesis.speak(utterance)
+      setIsSpeaking(true)
+    }
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -413,7 +434,27 @@ function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
           <div style={{ height: 4, background: '#121212', margin: '4px 0' }} />
 
           <div>
-            <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7A7A7A', marginBottom: 12 }}>SUMMARY PROFILE</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7A7A7A' }}>SUMMARY PROFILE</div>
+              <button 
+                onClick={toggleSpeech}
+                className="btn btn-ghost"
+                style={{ 
+                  padding: '4px 8px', 
+                  fontSize: 10, 
+                  border: '2px solid #121212', 
+                  boxShadow: isSpeaking ? 'none' : '2px 2px 0px 0px #121212', 
+                  transform: isSpeaking ? 'translate(1px, 1px)' : 'none',
+                  borderRadius: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                {isSpeaking ? <Square size={10} fill="#121212" /> : <Volume2 size={10} />}
+                {isSpeaking ? 'STOP AUDIO' : 'READ ALOUD'}
+              </button>
+            </div>
             <p style={{ fontSize: 15, lineHeight: 1.6, color: '#121212', fontWeight: 500 }}>{parsed.summary}</p>
           </div>
 
@@ -467,6 +508,27 @@ function PastSummaryCard({ s, onSaveToggle }) {
   const [full, setFull] = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel()
+    }
+  }, [])
+
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel()
+      setIsSpeaking(false)
+    } else {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(parsed.summary)
+      utterance.onend = () => setIsSpeaking(false)
+      utterance.onerror = () => setIsSpeaking(false)
+      window.speechSynthesis.speak(utterance)
+      setIsSpeaking(true)
+    }
+  }
 
   const load = async () => {
     if (full) { setOpen(o => !o); return }
@@ -533,6 +595,27 @@ function PastSummaryCard({ s, onSaveToggle }) {
       </div>
       {open && parsed && (
         <div style={{ borderTop: '4px solid #121212', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7A7A7A' }}>SUMMARY</div>
+            <button 
+              onClick={toggleSpeech}
+              className="btn btn-ghost"
+              style={{ 
+                padding: '4px 8px', 
+                fontSize: 10, 
+                border: '2px solid #121212', 
+                boxShadow: isSpeaking ? 'none' : '2px 2px 0px 0px #121212', 
+                transform: isSpeaking ? 'translate(1px, 1px)' : 'none',
+                borderRadius: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4
+              }}
+            >
+              {isSpeaking ? <Square size={10} fill="#121212" /> : <Volume2 size={10} />}
+              {isSpeaking ? 'STOP AUDIO' : 'READ ALOUD'}
+            </button>
+          </div>
           <p style={{ fontSize: 14, color: '#121212', lineHeight: 1.6, fontWeight: 500 }}>{parsed.summary}</p>
           <div style={{ height: 4, background: '#121212', margin: '4px 0' }} />
           <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7A7A7A' }}>INTERACTIVE QUERY SYSTEM</div>
