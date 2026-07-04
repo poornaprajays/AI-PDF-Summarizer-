@@ -26,6 +26,8 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
+  updateProfile: (data) => api.patch('/auth/profile', data),
+  changePassword: (data) => api.put('/auth/password', data),
 }
 
 export const pdfAPI = {
