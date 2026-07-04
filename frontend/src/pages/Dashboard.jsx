@@ -548,7 +548,7 @@ export default function Dashboard() {
   const [pastSummaries, setPastSummaries] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'))
 
   const fetchHistory = () => {
     summaryAPI.getMy().then(res => setPastSummaries(res.data)).catch(console.error).finally(() => setLoadingHistory(false))
@@ -556,6 +556,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchHistory()
+    
+    const handleProfileUpdate = () => {
+      setUser(JSON.parse(localStorage.getItem('user') || '{}'))
+    }
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate)
   }, [])
 
   const handleUploadSuccess = (data) => {
@@ -569,7 +575,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F0F0' }}>
-      <Navbar />
+      <Navbar key={user.name} />
       <div className="dash-wrapper" style={{ padding: '48px 48px', flexGrow: 1 }}>
         
         {/* Welcome Block */}

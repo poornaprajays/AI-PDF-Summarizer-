@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Shield, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Shield, LogOut, Menu, X, User } from 'lucide-react'
+import ProfileModal from './ProfileModal'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'))
   const token = localStorage.getItem('token')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setUser(JSON.parse(localStorage.getItem('user') || '{}'))
+    }
+    window.addEventListener('profileUpdated', handleUpdate)
+    return () => window.removeEventListener('profileUpdated', handleUpdate)
+  }, [])
 
   const logout = () => {
     localStorage.removeItem('token')
@@ -79,6 +89,19 @@ export default function Navbar() {
                   <LayoutDashboard size={15} /> Dashboard
                 </button>
               </Link>
+              <button 
+                onClick={() => setShowProfileModal(true)}
+                className="btn btn-ghost" 
+                style={{
+                  padding: '8px 16px',
+                  color: '#121212',
+                  border: '2px solid #121212',
+                  boxShadow: showProfileModal ? 'none' : '2px 2px 0px 0px #121212',
+                  transform: showProfileModal ? 'translate(2px, 2px)' : 'none',
+                }}
+              >
+                <User size={15} /> Profile
+              </button>
               {user.role === 'admin' && (
                 <Link to="/admin">
                   <button className="btn btn-ghost" style={{
@@ -137,6 +160,16 @@ export default function Navbar() {
                 <LayoutDashboard size={16} /> Dashboard
               </button>
             </Link>
+            <button 
+              onClick={() => { setShowProfileModal(true); close(); }}
+              className="nav-mobile-link" 
+              style={{
+                background: showProfileModal ? '#1040C0' : '#FFFFFF',
+                color: showProfileModal ? '#FFFFFF' : '#121212',
+              }}
+            >
+              <User size={16} /> Profile
+            </button>
             {user.role === 'admin' && (
               <Link to="/admin" onClick={close}>
                 <button className="nav-mobile-link" style={{
@@ -164,6 +197,12 @@ export default function Navbar() {
           </>
         )}
       </div>
+
+      <ProfileModal 
+        isOpen={showProfileModal} 
+        onClose={() => setShowProfileModal(false)} 
+        onProfileUpdate={() => {}} 
+      />
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </nav>
