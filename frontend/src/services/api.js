@@ -44,6 +44,7 @@ export const summaryAPI = {
   getAll: () => api.get('/summary/all'),
   getAnalytics: () => api.get('/summary/analytics'),
   toggleSave: (id) => api.patch(`/summary/${id}/save`),
+  delete: (id) => api.delete(`/summary/${id}`),
 }
 
 export default api

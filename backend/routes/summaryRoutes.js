@@ -7,7 +7,8 @@ const {
   askQuestion,
   getAllSummaries,
   getAnalytics,
-  toggleSaveSummary
+  toggleSaveSummary,
+  deleteSummary
 } = require('../controllers/summaryController');
 const { verifyToken, verifyAdmin } = require('../middleware/authMiddleware');
 
@@ -18,5 +19,6 @@ router.get('/:id', verifyToken, getSummaryById);
 router.post('/:id/rate', verifyToken, submitRating);
 router.post('/:id/ask', verifyToken, askQuestion);
 router.patch('/:id/save', verifyToken, toggleSaveSummary);
+router.delete('/:id', verifyToken, deleteSummary);
 
 module.exports = router;

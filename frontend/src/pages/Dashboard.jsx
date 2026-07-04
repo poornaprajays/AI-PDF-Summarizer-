@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import { pdfAPI, summaryAPI } from '../services/api'
-import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark, Mic, MicOff, Volume2, Square } from 'lucide-react'
+import { Upload, FileText, Loader, Send, ChevronDown, ChevronUp, Bookmark, Mic, MicOff, Volume2, Square, Trash2 } from 'lucide-react'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 function UploadZone({ onSuccess }) {
@@ -360,9 +360,11 @@ function QABox({ summaryId }) {
   )
 }
 
-function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
+function SummaryResult({ data, isSaved, onSaveToggle, onRated, onDelete }) {
   const [open, setOpen] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [hoveredDelete, setHoveredDelete] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
 
@@ -398,6 +400,20 @@ function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
     }
   }
 
+  const handleDelete = async () => {
+    if (window.confirm("ARE YOU SURE YOU WANT TO DELETE THIS SUMMARY?")) {
+      setDeleting(true)
+      try {
+        await summaryAPI.delete(data.summaryId)
+        if (onDelete) onDelete()
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setDeleting(false)
+      }
+    }
+  }
+
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 24, background: '#FFFFFF', border: '4px solid #121212', borderRadius: 0, boxShadow: '8px 8px 0px 0px #121212' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -416,8 +432,28 @@ function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
             style={{ padding: '8px 12px', border: '3px solid #121212', color: isSaved ? '#D02020' : '#121212', boxShadow: 'none', borderRadius: 0 }} 
             onClick={handleSave}
             disabled={saving}
+            title="BOOKMARK SUMMARY"
           >
             <Bookmark size={16} fill={isSaved ? '#D02020' : 'transparent'} />
+          </button>
+          <button 
+            className="btn btn-ghost" 
+            style={{ 
+              padding: '8px 12px', 
+              border: '3px solid #121212', 
+              boxShadow: 'none', 
+              borderRadius: 0,
+              background: hoveredDelete ? '#D02020' : '#FFFFFF',
+              color: hoveredDelete ? '#FFFFFF' : '#121212',
+              transition: 'all 0.15s ease'
+            }} 
+            onMouseEnter={() => setHoveredDelete(true)}
+            onMouseLeave={() => setHoveredDelete(false)}
+            onClick={handleDelete}
+            disabled={deleting}
+            title="DELETE SUMMARY"
+          >
+            {deleting ? <Loader size={16} style={{ animation: 'spin 1.5s linear infinite' }} /> : <Trash2 size={16} />}
           </button>
           <button 
             className="btn btn-ghost" 
@@ -503,11 +539,13 @@ function SummaryResult({ data, isSaved, onSaveToggle, onRated }) {
   )
 }
 
-function PastSummaryCard({ s, onSaveToggle }) {
+function PastSummaryCard({ s, onSaveToggle, onDelete }) {
   const [open, setOpen] = useState(false)
   const [full, setFull] = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [hoveredDelete, setHoveredDelete] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
   useEffect(() => {
@@ -556,6 +594,20 @@ function PastSummaryCard({ s, onSaveToggle }) {
     }
   }
 
+  const handleDelete = async () => {
+    if (window.confirm("ARE YOU SURE YOU WANT TO DELETE THIS SUMMARY?")) {
+      setDeleting(true)
+      try {
+        await summaryAPI.delete(s.id)
+        if (onDelete) onDelete()
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setDeleting(false)
+      }
+    }
+  }
+
   const parsed = full ? (typeof full.summary === 'string' ? JSON.parse(full.summary) : full.summary) : null
 
   return (
@@ -580,8 +632,29 @@ function PastSummaryCard({ s, onSaveToggle }) {
             style={{ padding: '6px 8px', border: '3px solid #121212', color: s.is_saved ? '#D02020' : '#121212', boxShadow: 'none', borderRadius: 0 }} 
             onClick={handleSave}
             disabled={saving}
+            title="BOOKMARK SUMMARY"
           >
             <Bookmark size={14} fill={s.is_saved ? '#D02020' : 'transparent'} />
+          </button>
+
+          <button 
+            className="btn btn-ghost" 
+            style={{ 
+              padding: '6px 8px', 
+              border: '3px solid #121212', 
+              boxShadow: 'none', 
+              borderRadius: 0,
+              background: hoveredDelete ? '#D02020' : '#FFFFFF',
+              color: hoveredDelete ? '#FFFFFF' : '#121212',
+              transition: 'all 0.15s ease'
+            }} 
+            onMouseEnter={() => setHoveredDelete(true)}
+            onMouseLeave={() => setHoveredDelete(false)}
+            onClick={handleDelete}
+            disabled={deleting}
+            title="DELETE SUMMARY"
+          >
+            {deleting ? <Loader size={13} style={{ animation: 'spin 1.5s linear infinite' }} /> : <Trash2 size={14} />}
           </button>
 
           <button 
@@ -702,6 +775,10 @@ export default function Dashboard() {
                 isSaved={isLatestSaved} 
                 onSaveToggle={fetchHistory} 
                 onRated={fetchHistory} 
+                onDelete={() => {
+                  setLatestResult(null)
+                  fetchHistory()
+                }}
               />
             )}
           </div>
@@ -777,7 +854,19 @@ export default function Dashboard() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {displayedSummaries.map(s => <PastSummaryCard key={s.id} s={s} onSaveToggle={fetchHistory} />)}
+                {displayedSummaries.map(s => (
+                  <PastSummaryCard 
+                    key={s.id} 
+                    s={s} 
+                    onSaveToggle={fetchHistory} 
+                    onDelete={() => {
+                      if (latestResult && latestResult.summaryId === s.id) {
+                        setLatestResult(null)
+                      }
+                      fetchHistory()
+                    }}
+                  />
+                ))}
               </div>
             )}
           </div>

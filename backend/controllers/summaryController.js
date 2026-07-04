@@ -140,6 +140,23 @@ const toggleSaveSummary = async (req, res) => {
   }
 };
 
+const deleteSummary = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM summaries 
+       WHERE id = $1 AND user_id = $2 
+       RETURNING id`,
+      [req.params.id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Summary not found.' });
+    }
+    res.status(200).json({ message: 'Summary deleted successfully.', id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not delete summary.', error: err.message });
+  }
+};
+
 module.exports = {
   getUserSummaries,
   getSummaryById,
@@ -147,5 +164,7 @@ module.exports = {
   askQuestion,
   getAllSummaries,
   getAnalytics,
-  toggleSaveSummary
+  toggleSaveSummary,
+  deleteSummary
 };
+
